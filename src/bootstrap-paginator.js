@@ -369,8 +369,8 @@
          * */
         buildPageItem: function (type, page) {
 
-            var itemContainer = $("<li></li>"),//creates the item container
-                itemContent = $("<a></a>"),//creates the item content
+            var itemContainer = $('<li></li>'),//creates the item container
+                itemContent = $('<a role="button"></a>'),//creates the item content
                 text = "",
                 title = "",
                 itemContainerClass = this.options.itemContainerClass(type, page, this.currentPage),
@@ -451,9 +451,21 @@
                 pageStart = (this.currentPage % this.numberOfPages === 0) ? (parseInt(this.currentPage / this.numberOfPages, 10) - 1) * this.numberOfPages + 1 : parseInt(this.currentPage / this.numberOfPages, 10) * this.numberOfPages + 1,//calculates the start page.
                 output = [],
                 i = 0,
-                counter = 0;
+                counter = 0,
+                padWith;
 
             pageStart = pageStart < 1 ? 1 : pageStart;//check the range of the page start to see if its less than 1.
+
+            if (this.options.centerCurrentPage && this.numberOfPages % 2 !== 0) {
+                padWith = (this.numberOfPages - 1) / 2;
+                if (this.currentPage - padWith <= 0 || (this.totalPages - this.numberOfPages + 1) <= 0) {
+                    pageStart = 1;
+                } else if (this.currentPage + padWith > this.totalPages) {
+                    pageStart = this.totalPages - this.numberOfPages + 1;
+                } else {
+                    pageStart = this.currentPage - padWith;
+                }
+            }
 
             for (i = pageStart, counter = 0; counter < this.numberOfPages && i <= totalPages; i = i + 1, counter = counter + 1) {//fill the pages
                 output.push(i);
@@ -569,15 +581,16 @@
         containerClass: "",
         size: "normal",
         alignment: "left",
-        bootstrapMajorVersion: 2,
+        bootstrapMajorVersion: 3,
         listContainerClass: "",
         itemContainerClass: function (type, page, current) {
-            return (page === current) ? "active" : "";
+            return (page === current && type == "page") ? "active" : "";
         },
         itemContentClass: function (type, page, current) {
             return "";
         },
         currentPage: 1,
+        centerCurrentPage: false,
         numberOfPages: 5,
         totalPages: 1,
         pageUrl: function (type, page, current) {
